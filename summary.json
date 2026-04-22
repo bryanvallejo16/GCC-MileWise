@@ -1,0 +1,200 @@
+{
+  "generated_at": "2026-04-22T14:03:30.198867+00:00",
+  "scenarios": [
+    {
+      "scenario": "Baseline",
+      "n_vehicles": 5,
+      "range_km": 100,
+      "shift_hours": 12,
+      "buildings_in_day": 1000,
+      "buildings_delivered": 730,
+      "buildings_missed": 270,
+      "coverage_pct": 73.0,
+      "total_distance_km": 769.6,
+      "total_charging_stops": 5,
+      "suggested_new_chargers": 1,
+      "per_vehicle": [
+        {
+          "vehicle_id": 0,
+          "delivered": 118,
+          "missed": 82,
+          "distance_km": 181.9,
+          "drive_time_h": 4.55,
+          "charging_time_h": 1.5,
+          "num_charges": 2,
+          "shift_end_reason": "shift_ended"
+        },
+        {
+          "vehicle_id": 1,
+          "delivered": 192,
+          "missed": 8,
+          "distance_km": 94.0,
+          "drive_time_h": 2.35,
+          "charging_time_h": 0.0,
+          "num_charges": 0,
+          "shift_end_reason": "shift_ended"
+        },
+        {
+          "vehicle_id": 2,
+          "delivered": 144,
+          "missed": 56,
+          "distance_km": 152.3,
+          "drive_time_h": 3.81,
+          "charging_time_h": 0.75,
+          "num_charges": 1,
+          "shift_end_reason": "shift_ended"
+        },
+        {
+          "vehicle_id": 3,
+          "delivered": 142,
+          "missed": 58,
+          "distance_km": 164.6,
+          "drive_time_h": 4.12,
+          "charging_time_h": 0.75,
+          "num_charges": 1,
+          "shift_end_reason": "shift_ended"
+        },
+        {
+          "vehicle_id": 4,
+          "delivered": 134,
+          "missed": 66,
+          "distance_km": 176.8,
+          "drive_time_h": 4.42,
+          "charging_time_h": 0.75,
+          "num_charges": 1,
+          "shift_end_reason": "shift_ended_en_route_to_charger"
+        }
+      ]
+    },
+    {
+      "scenario": "Longer shift",
+      "n_vehicles": 5,
+      "range_km": 100,
+      "shift_hours": 16,
+      "buildings_in_day": 1000,
+      "buildings_delivered": 823,
+      "buildings_missed": 177,
+      "coverage_pct": 82.3,
+      "total_distance_km": 1089.9,
+      "total_charging_stops": 10,
+      "suggested_new_chargers": 1,
+      "per_vehicle": [
+        {
+          "vehicle_id": 0,
+          "delivered": 148,
+          "missed": 52,
+          "distance_km": 266.6,
+          "drive_time_h": 6.67,
+          "charging_time_h": 1.5,
+          "num_charges": 2,
+          "shift_end_reason": "shift_ended_en_route_to_charger"
+        },
+        {
+          "vehicle_id": 1,
+          "delivered": 200,
+          "missed": 0,
+          "distance_km": 102.3,
+          "drive_time_h": 2.56,
+          "charging_time_h": 0.75,
+          "num_charges": 1,
+          "shift_end_reason": "all_delivered"
+        },
+        {
+          "vehicle_id": 2,
+          "delivered": 150,
+          "missed": 50,
+          "distance_km": 221.1,
+          "drive_time_h": 5.53,
+          "charging_time_h": 2.25,
+          "num_charges": 3,
+          "shift_end_reason": "shift_ended"
+        },
+        {
+          "vehicle_id": 3,
+          "delivered": 164,
+          "missed": 36,
+          "distance_km": 248.1,
+          "drive_time_h": 6.2,
+          "charging_time_h": 1.5,
+          "num_charges": 2,
+          "shift_end_reason": "shift_ended_en_route_to_charger"
+        },
+        {
+          "vehicle_id": 4,
+          "delivered": 161,
+          "missed": 39,
+          "distance_km": 251.9,
+          "drive_time_h": 6.3,
+          "charging_time_h": 1.5,
+          "num_charges": 2,
+          "shift_end_reason": "shift_ended"
+        }
+      ]
+    },
+    {
+      "scenario": "Bigger range",
+      "n_vehicles": 5,
+      "range_km": 150,
+      "shift_hours": 12,
+      "buildings_in_day": 1000,
+      "buildings_delivered": 716,
+      "buildings_missed": 284,
+      "coverage_pct": 71.6,
+      "total_distance_km": 833.7,
+      "total_charging_stops": 4,
+      "suggested_new_chargers": 1,
+      "per_vehicle": [
+        {
+          "vehicle_id": 0,
+          "delivered": 131,
+          "missed": 69,
+          "distance_km": 186.4,
+          "drive_time_h": 4.66,
+          "charging_time_h": 0.75,
+          "num_charges": 1,
+          "shift_end_reason": "shift_ended"
+        },
+        {
+          "vehicle_id": 1,
+          "delivered": 192,
+          "missed": 8,
+          "distance_km": 94.0,
+          "drive_time_h": 2.35,
+          "charging_time_h": 0.0,
+          "num_charges": 0,
+          "shift_end_reason": "shift_ended"
+        },
+        {
+          "vehicle_id": 2,
+          "delivered": 144,
+          "missed": 56,
+          "distance_km": 152.3,
+          "drive_time_h": 3.81,
+          "charging_time_h": 0.75,
+          "num_charges": 1,
+          "shift_end_reason": "shift_ended"
+        },
+        {
+          "vehicle_id": 3,
+          "delivered": 114,
+          "missed": 86,
+          "distance_km": 221.3,
+          "drive_time_h": 5.53,
+          "charging_time_h": 0.75,
+          "num_charges": 1,
+          "shift_end_reason": "shift_ended"
+        },
+        {
+          "vehicle_id": 4,
+          "delivered": 135,
+          "missed": 65,
+          "distance_km": 179.6,
+          "drive_time_h": 4.49,
+          "charging_time_h": 0.75,
+          "num_charges": 1,
+          "shift_end_reason": "shift_ended"
+        }
+      ]
+    }
+  ]
+}
