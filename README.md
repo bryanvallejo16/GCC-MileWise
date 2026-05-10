@@ -1,6 +1,5 @@
 # GCC MileWise — Rovaniemi EV Fleet Routing
 
----
 
 ## Introduction
 
@@ -31,6 +30,9 @@ The result is a dependency on diesel vehicles for outlying routes — preventing
 ## Solution
 
 GCC MileWise is a browser-based interactive planning tool built on real geospatial data for Rovaniemi municipality. It models EV fleet operations and visualises delivery coverage on a live map, enabling stakeholders to test different scenarios without any technical expertise.
+
+*MileWise Fleet Router*
+![img](front-end.png)
 
 ### How the algorithm works
 
