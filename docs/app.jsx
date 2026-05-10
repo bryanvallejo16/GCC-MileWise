@@ -29,6 +29,25 @@ function App() {
   const [numEV, setNumEV] = useState(6);
   const [evRange, setEvRange] = useState(220);
   const [startBattery, setStartBattery] = useState(92);
+
+  // Max EVs needed to cover every building — derived from range/battery and the furthest building.
+  // Mirrors the solver formula: coverageRadius = (4 + numEV * 1.5) * rangeScale >= maxBuildingDist
+  const maxNumEV = useMemo(() => {
+    if (!data) return 12;
+    const { depot, buildings } = data;
+    let maxDist = 0;
+    for (const b of buildings) {
+      const dx = (b.lon - depot.lon) * 111 * Math.cos(depot.lat * Math.PI / 180);
+      const dy = (b.lat - depot.lat) * 111;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d > maxDist) maxDist = d;
+    }
+    const effRange = evRange * (startBattery / 100);
+    const rangeScale = effRange / (220 * 0.92);
+    const hoursScale = (workDay > 0 ? workDay : 8) / 8;
+    return Math.max(12, Math.ceil((maxDist / (rangeScale * hoursScale) - 4) / 1.5));
+  }, [data, evRange, startBattery, workDay]);
+
   const [depotId, setDepotId] = useState('rovaniemi-main');
   const [workDay, setWorkDay] = useState(8);
 
@@ -129,7 +148,7 @@ function App() {
     <div className="app">
       <Sidebar
         data={data}
-        numEV={numEV} setNumEV={setNumEV}
+        numEV={numEV} setNumEV={setNumEV} maxNumEV={maxNumEV}
         evRange={evRange} setEvRange={setEvRange}
         startBattery={startBattery} setStartBattery={setStartBattery}
         depotId={depotId} setDepotId={setDepotId}
@@ -147,7 +166,10 @@ function App() {
         <TopBar result={result} running={running} progress={progress} />
         <MapView data={data} result={result} tweaks={tweaks} running={running} />
         {result && <KPIStrip result={result} />}
-        {result && <SuggestedChargersPanel chargers={result.suggestedChargers} />}
+        <div className="right-col">
+          <MapLegend result={result} />
+          {result && <SuggestedChargersPanel chargers={result.suggestedChargers} />}
+        </div>
       </main>
 
       {tweaksOpen && (

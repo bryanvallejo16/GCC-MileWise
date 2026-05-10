@@ -102,7 +102,7 @@ function MapView({ data, result, tweaks, running }) {
         source: 'buildings',
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 1.5, 13, 3, 16, 5],
-          'circle-color': ['case', ['==', ['get', 'state'], 'unreachable'], '#DC2626', ['==', ['get', 'state'], 'covered'], ['get', 'color'], '#94A3B8'],
+          'circle-color': ['case', ['==', ['get', 'state'], 'unreachable'], '#DC2626', ['==', ['get', 'state'], 'covered'], '#15803D', '#94A3B8'],
           'circle-opacity': ['case', ['==', ['get', 'state'], 'unreachable'], 0.95, 0.82],
           'circle-stroke-width': ['case', ['==', ['get', 'state'], 'unreachable'], 1.2, 0.4],
           'circle-stroke-color': ['case', ['==', ['get', 'state'], 'unreachable'], '#7F1D1D', '#FFFFFF'],
@@ -110,23 +110,9 @@ function MapView({ data, result, tweaks, running }) {
       });
     }
 
-    // routes
+    // routes source kept for data updates; layers removed per user request
     if (!map.getSource('routes')) {
       map.addSource('routes', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-      map.addLayer({
-        id: 'routes-casing',
-        type: 'line',
-        source: 'routes',
-        paint: { 'line-color': '#ffffff', 'line-width': 5, 'line-opacity': 0.7 },
-        layout: { 'line-cap': 'round', 'line-join': 'round' },
-      });
-      map.addLayer({
-        id: 'routes-line',
-        type: 'line',
-        source: 'routes',
-        paint: { 'line-color': ['get', 'color'], 'line-width': 2.4, 'line-opacity': 0.9 },
-        layout: { 'line-cap': 'round', 'line-join': 'round' },
-      });
     }
 
     // existing chargers
@@ -261,23 +247,16 @@ function MapView({ data, result, tweaks, running }) {
       return;
     }
 
-    // post-run: color by vehicle, mark unreachable
+    // post-run: green = covered, red = unreachable
     const unreachIds = new Set(result.unreachable.map(b => b.id));
-    const vmap = new Map();
-    result.vehicles.forEach(v => v.stops.forEach(b => vmap.set(b.id, v.color)));
 
     src.setData({
       type: 'FeatureCollection',
-      features: data.buildings.map(b => {
-        let state = 'pending', color = '#CBD5E1';
-        if (unreachIds.has(b.id)) state = 'unreachable';
-        else if (vmap.has(b.id)) { state = 'covered'; color = vmap.get(b.id); }
-        return {
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: [b.lon, b.lat] },
-          properties: { state, color },
-        };
-      }),
+      features: data.buildings.map(b => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [b.lon, b.lat] },
+        properties: { state: unreachIds.has(b.id) ? 'unreachable' : 'covered' },
+      })),
     });
   }, [result, ready, data, tweaks.showBuildingsBefore]);
 
@@ -319,72 +298,25 @@ function MapView({ data, result, tweaks, running }) {
     }
   }, [result, ready]);
 
-  // Animate vehicles driving + pulse suggested
+  // Pulse suggested charger markers
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready || !result) return;
-
-    const vehSrc = map.getSource('vehicles');
     const sugSrc = map.getSource('suggested');
-    if (!vehSrc) return;
-
-    const routeLens = result.vehicles.map(v => {
-      let total = 0;
-      const seg = [];
-      const rc = v.routeCoords;
-      for (let i = 0; i < rc.length - 1; i++) {
-        const a = { lon: rc[i][0], lat: rc[i][1] };
-        const b = { lon: rc[i + 1][0], lat: rc[i + 1][1] };
-        const d = Math.hypot((a.lon - b.lon) * Math.cos(a.lat * Math.PI / 180), (a.lat - b.lat));
-        seg.push({ a, b, d });
-        total += d;
-      }
-      return { total, seg };
-    });
-
-    animRef.current.t0 = performance.now();
+    if (!sugSrc) return;
     let raf;
+    const t0 = performance.now();
     const loop = (now) => {
-      const t = (now - animRef.current.t0) / 1000;
-      const period = 20; // one lap = 20s
-      const u = (t % period) / period;
-
-      const feats = result.vehicles.map((v, i) => {
-        const { total, seg } = routeLens[i];
-        if (total === 0) return null;
-        let target = u * total;
-        let ax = v.routeCoords[0][0], ay = v.routeCoords[0][1];
-        for (const s of seg) {
-          if (target <= s.d) {
-            const f = target / s.d;
-            ax = s.a.lon + (s.b.lon - s.a.lon) * f;
-            ay = s.a.lat + (s.b.lat - s.a.lat) * f;
-            break;
-          }
-          target -= s.d;
-        }
-        return {
+      const t = (now - t0) / 1000;
+      const pulse = (Math.sin(t * 1.8) + 1) / 2;
+      sugSrc.setData({
+        type: 'FeatureCollection',
+        features: result.suggestedChargers.map(c => ({
           type: 'Feature',
-          geometry: { type: 'Point', coordinates: [ax, ay] },
-          properties: { color: v.color, id: v.id },
-        };
-      }).filter(Boolean);
-
-      vehSrc.setData({ type: 'FeatureCollection', features: feats });
-
-      // pulse suggested
-      if (sugSrc) {
-        const pulse = (Math.sin(t * 1.8) + 1) / 2;
-        sugSrc.setData({
-          type: 'FeatureCollection',
-          features: result.suggestedChargers.map(c => ({
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [c.lon, c.lat] },
-            properties: { pulse, name: c.name },
-          })),
-        });
-      }
-
+          geometry: { type: 'Point', coordinates: [c.lon, c.lat] },
+          properties: { pulse, name: c.name },
+        })),
+      });
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -403,7 +335,6 @@ function MapView({ data, result, tweaks, running }) {
           </div>
         </div>
       )}
-      <MapLegend result={result} />
     </div>
   );
 }
@@ -415,19 +346,15 @@ function MapLegend({ result }) {
       <div className="legend-row"><span className="dot depot" /> Depot</div>
       <div className="legend-row"><span className="dot existing" /> Existing charger</div>
       <div className="legend-row"><span className="dot suggested pulse" /> Suggested site</div>
-      <div className="legend-row"><span className="dot vehicle" /> Delivered building</div>
+      <div className="legend-row"><span className="dot" style={{ background: '#15803D' }} /> Delivered building</div>
       <div className="legend-row"><span className="dot unreachable" /> Unreachable (out of range)</div>
       {result && (
         <>
           <div className="legend-divider" />
-          <div className="legend-title small">Vehicles</div>
-          {result.vehicles.map(v => (
-            <div key={v.id} className="legend-row">
-              <span className="dot" style={{ background: v.color }} />
-              <span>{v.id}</span>
-              <span className="legend-meta">{v.stops.length} stops · {v.distanceKm.toFixed(0)} km</span>
-            </div>
-          ))}
+          <div className="legend-title small">Coverage</div>
+          <div className="legend-row">
+            <span>{result.vehicles.length} EVs · {result.covered.toLocaleString()} buildings covered</span>
+          </div>
         </>
       )}
     </div>
@@ -435,3 +362,4 @@ function MapLegend({ result }) {
 }
 
 window.MapView = MapView;
+window.MapLegend = MapLegend;
